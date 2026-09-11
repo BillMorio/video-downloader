@@ -1,0 +1,17 @@
+# Optional Render Blueprint for the backend. You can also just create the
+# service by hand (Docker runtime, root dir = backend).
+services:
+  - type: web
+    name: lumina-video-downloader-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter
+    healthCheckPath: /api/health
+    envVars:
+      - key: ALLOWED_ORIGINS
+        sync: false   # set to your Vercel URL in the dashboard
+      - key: MAX_FILESIZE_MB
+        value: "1024"
+      - key: RATE_LIMIT_PER_MIN
+        value: "6"

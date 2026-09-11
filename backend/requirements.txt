@@ -1,0 +1,6 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+# yt-dlp must stay current — YouTube/IG/FB change often and old releases break.
+# Bump this and redeploy whenever downloads start failing.
+yt-dlp==2026.8.19
+pydantic==2.9.2

@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+backend/.venv/
+backend/.env
+
+# Node / Next
+node_modules/
+.next/
+out/
+.env.local
+.vercel
+
+# OS
+.DS_Store
+*.log

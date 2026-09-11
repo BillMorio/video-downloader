@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  background: #030404;
+}
+body {
+  background: transparent;
+  color: #fafafa;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+}
+
+/* Aurora — near-black OLED base with a soft green glow (Lumina foundation). */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(60% 50% at 20% 10%, rgba(34, 197, 94, 0.12), transparent 60%),
+    radial-gradient(50% 40% at 85% 20%, rgba(125, 255, 166, 0.08), transparent 60%),
+    radial-gradient(70% 60% at 50% 100%, rgba(34, 197, 94, 0.07), transparent 60%),
+    #070808;
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(125, 255, 166, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 255, 166, 0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: linear-gradient(to bottom, black, transparent 70%);
+  mask-image: linear-gradient(to bottom, black, transparent 70%);
+}
+
+.card-lumina {
+  background: linear-gradient(180deg, rgba(25, 26, 30, 0.9), rgba(19, 20, 23, 0.9));
+  border: 1px solid #26272b;
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+}
+.neon {
+  color: #7dffa6;
+  filter: drop-shadow(0 0 8px rgba(125, 255, 166, 0.35));
+}
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
