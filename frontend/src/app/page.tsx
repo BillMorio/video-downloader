@@ -113,14 +113,14 @@ export default function Page() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center px-4 py-16">
+    <main className="min-h-screen flex flex-col items-center px-4 py-10 sm:py-16">
       <div className="w-full max-w-xl">
         {/* Header */}
-        <div className="mb-8 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand mb-2">
+        <div className="mb-6 sm:mb-8 text-center">
+          <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.24em] text-brand mb-2">
             Lumina · personal tool
           </p>
-          <h1 className="text-2xl font-semibold tracking-tight text-[#fafafa]">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-[#fafafa]">
             Video Downloader
           </h1>
           <p className="text-sm text-[#b8b8c0] mt-2">
@@ -129,7 +129,7 @@ export default function Page() {
         </div>
 
         {/* Card */}
-        <div className="card-lumina rounded-[16px] p-6">
+        <div className="card-lumina rounded-[16px] p-5 sm:p-6">
           {/* URL input */}
           <label className="block text-xs font-semibold uppercase tracking-wider text-[#9a9aa4] mb-2">
             Video link
@@ -165,9 +165,9 @@ export default function Page() {
             </p>
           )}
 
-          {/* Options */}
-          <div className="flex flex-wrap items-center gap-3 mt-4">
-            <div className="flex-1 min-w-[140px]">
+          {/* Options — stacks on mobile, row on larger screens */}
+          <div className="mt-4 flex flex-col sm:flex-row sm:items-end gap-3">
+            <div className="flex-1">
               <label className="block text-xs font-semibold uppercase tracking-wider text-[#9a9aa4] mb-2">
                 Quality
               </label>
@@ -182,12 +182,12 @@ export default function Page() {
                 <option value="480">480p</option>
               </select>
             </div>
-            <label className="flex items-center gap-2 mt-6 cursor-pointer select-none">
+            <label className="flex items-center gap-2 sm:pb-3 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={audioOnly}
                 onChange={(e) => setAudioOnly(e.target.checked)}
-                className="accent-[#22c55e] w-4 h-4"
+                className="accent-[#22c55e] w-4 h-4 shrink-0"
               />
               <span className="text-sm text-[#b8b8c0]">Audio only (MP3)</span>
             </label>
