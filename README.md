@@ -58,11 +58,47 @@ npm run dev
 
 Jobs and files live in memory / `/tmp` and are auto-reaped after 15 min.
 
+## Live instances
+- **Frontend:** https://lumina-video-downloader.vercel.app (Vercel project `lumina-video-downloader`)
+- **Backend:** https://lumina-video-downloader-api.onrender.com (Render `srv-dai41aeq1p3s73b16a4g`, Lumina Agency)
+- **Repo:** https://github.com/BillMorio/video-downloader (public — so Render can clone it)
+
+## Real-world platform status (tested from the Render IP, 2026-09-11)
+| Platform | Works from server? |
+|---|---|
+| **Facebook** | ✅ Yes |
+| **YouTube** | ⚠️ Bot-checked from the datacenter IP — usually fails without cookies |
+| **Instagram** | ⚠️ Blocked from the datacenter IP without cookies |
+
+YouTube/IG both download fine from a residential IP (e.g. your laptop running
+locally). The block is the server's datacenter IP, not the code. We shipped
+**best-effort, no cookies** by choice.
+
+## Enabling cookies later (unlocks YouTube + Instagram)
+The code already supports it — no redeploy of logic needed:
+1. In a browser logged into YouTube/Instagram, export `cookies.txt` (Netscape
+   format) with a "Get cookies.txt LOCALLY" extension.
+2. On Render → this service → **Secret Files**, add the file (e.g. `cookies.txt`).
+3. Set env var `COOKIES_FILE` to its mounted path (e.g. `/etc/secrets/cookies.txt`).
+4. Redeploy (see below). Cookies expire every few weeks — re-export when YT/IG
+   start failing again.
+
+## Deploying updates (IMPORTANT)
+Render added this repo **by URL**, not via the GitHub App, so it gets **no push
+webhook** — `git push` does NOT auto-deploy. After pushing, trigger a deploy
+manually:
+```bash
+curl -X POST -H "Authorization: Bearer $RENDER_API_KEY" \
+  https://api.render.com/v1/services/srv-dai41aeq1p3s73b16a4g/deploys \
+  -d '{"clearCache":"do_not_clear"}'
+```
+The Vercel frontend deploys with `vercel deploy --prod --yes --token $VERCEL_TOKEN`
+from the `frontend/` dir.
+
 ## Notes / limits
-- **Best-effort for IG/FB.** Public content usually downloads fine. Private,
-  age-gated, or login-walled posts will fail from a datacenter IP — that's
-  expected without a `cookies.txt` (not wired up in this version).
 - Single process, in-memory state — a restart drops in-flight jobs. Fine for
   personal use.
 - ffmpeg is bundled in the Docker image; that's why the backend is Docker, not
   a plain Python service.
+- `yt-dlp` must be kept current (see `backend/requirements.txt`) — YouTube/IG/FB
+  change often and stale releases break.
