@@ -135,7 +135,25 @@ def _run_job(job_id: str, url: str, resolution: str, audio_only: bool) -> None:
         "progress_hooks": [hook],
         "socket_timeout": 30,
         "retries": 3,
+        # From a datacenter IP, YouTube bot-checks the default "web" client
+        # ("sign in to confirm you're not a bot"). The tv / ios / mweb player
+        # clients often slip past that without cookies. Order matters — yt-dlp
+        # tries them left to right. A cookies file (COOKIES_FILE) closes the
+        # rest of the gap for IG/FB/age-gated content if we ever add it.
+        "extractor_args": {
+            "youtube": {"player_client": ["tv", "ios", "mweb", "web_safari"]}
+        },
+        # A real desktop UA helps IG/FB return the public media JSON.
+        "http_headers": {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                "(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+            )
+        },
     }
+    cookies_file = os.getenv("COOKIES_FILE")
+    if cookies_file and Path(cookies_file).exists():
+        ydl_opts["cookiefile"] = cookies_file
     if audio_only:
         ydl_opts["postprocessors"] = [
             {"key": "FFmpegExtractAudio", "preferredcodec": "mp3", "preferredquality": "192"}
