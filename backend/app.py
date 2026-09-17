@@ -183,7 +183,7 @@ def _run_job(job_id: str, url: str, resolution: str, audio_only: bool) -> None:
             raise RuntimeError("no output file produced")
         _set(job_id, status="ready", pct=100, title=title, path=str(real))
     except Exception as e:  # noqa: BLE001 — translate to a clean user message
-        _set(job_id, status="error", error=_friendly_error(str(e)))
+        _set(job_id, status="error", error=_friendly_error(str(e)), raw_error=str(e)[:300])
         shutil.rmtree(job_dir, ignore_errors=True)
 
 
@@ -280,6 +280,7 @@ def status(job_id: str):
             "pct": job["pct"],
             "title": job["title"],
             "error": job["error"],
+            "raw_error": job.get("raw_error"),
         }
 
 
