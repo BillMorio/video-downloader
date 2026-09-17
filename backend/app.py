@@ -183,7 +183,11 @@ def _run_job(job_id: str, url: str, resolution: str, audio_only: bool) -> None:
             title = info.get("title") or "video"
         # yt-dlp renamed/merged; grab whatever landed in the job dir.
         files = sorted(job_dir.glob("*"), key=lambda p: p.stat().st_mtime, reverse=True)
-        real = next((p for p in files if p.is_file() and not p.name.endswith(".part")), None)
+        real = next(
+            (p for p in files
+             if p.is_file() and not p.name.endswith(".part") and p.name != "cookies.txt"),
+            None,
+        )
         if not real:
             raise RuntimeError("no output file produced")
         _set(job_id, status="ready", pct=100, title=title, path=str(real))
