@@ -235,7 +235,16 @@ class DownloadReq(BaseModel):
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "ffmpeg": bool(shutil.which("ffmpeg"))}
+    cf = os.getenv("COOKIES_FILE")
+    cookies_loaded = bool(cf and Path(cf).exists())
+    cookies_bytes = Path(cf).stat().st_size if cookies_loaded else 0
+    return {
+        "ok": True,
+        "ffmpeg": bool(shutil.which("ffmpeg")),
+        "cookies_file": cf or None,
+        "cookies_loaded": cookies_loaded,
+        "cookies_bytes": cookies_bytes,
+    }
 
 
 @app.post("/api/download")
