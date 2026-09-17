@@ -164,7 +164,12 @@ def _run_job(job_id: str, url: str, resolution: str, audio_only: bool) -> None:
     }
     cookies_file = os.getenv("COOKIES_FILE")
     if cookies_file and Path(cookies_file).exists():
-        ydl_opts["cookiefile"] = cookies_file
+        # yt-dlp writes the cookie jar BACK to cookiefile after the session.
+        # The mounted secret (/etc/secrets/…) is read-only, so copy it to a
+        # writable per-job path and point yt-dlp there.
+        writable = job_dir / "cookies.txt"
+        shutil.copyfile(cookies_file, writable)
+        ydl_opts["cookiefile"] = str(writable)
     if audio_only:
         ydl_opts["postprocessors"] = [
             {"key": "FFmpegExtractAudio", "preferredcodec": "mp3", "preferredquality": "192"}
