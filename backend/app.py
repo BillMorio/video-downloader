@@ -55,9 +55,20 @@ RESOLUTIONS = {"1080": 1080, "720": 720, "480": 480}
 
 app = FastAPI(title="Lumina Video Downloader", docs_url=None, redoc_url=None)
 
+# Also allow the Lumina Clippers portals + any Vercel preview deploy of them to
+# call us (the client-facing Download button lives in that portal). Vercel
+# preview URLs are dynamic per deploy, so match them by regex instead of an
+# exact allowlist. localhost stays allowed for local dev.
+ALLOWED_ORIGIN_REGEX = os.getenv(
+    "ALLOWED_ORIGIN_REGEX",
+    r"^https://([a-z0-9-]+\.)*(luminaclippers\.com|luminaclips\.co|vercel\.app)$"
+    r"|^http://localhost(:\d+)?$",
+)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=ALLOWED_ORIGIN_REGEX,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
