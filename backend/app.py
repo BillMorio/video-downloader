@@ -162,14 +162,6 @@ def _run_job(job_id: str, url: str, resolution: str, audio_only: bool) -> None:
             )
         },
     }
-    cookies_file = os.getenv("COOKIES_FILE")
-    if cookies_file and Path(cookies_file).exists():
-        # yt-dlp writes the cookie jar BACK to cookiefile after the session.
-        # The mounted secret (/etc/secrets/…) is read-only, so copy it to a
-        # writable per-job path and point yt-dlp there.
-        writable = job_dir / "cookies.txt"
-        shutil.copyfile(cookies_file, writable)
-        ydl_opts["cookiefile"] = str(writable)
     if audio_only:
         ydl_opts["postprocessors"] = [
             {"key": "FFmpegExtractAudio", "preferredcodec": "mp3", "preferredquality": "192"}
@@ -177,10 +169,32 @@ def _run_job(job_id: str, url: str, resolution: str, audio_only: bool) -> None:
     else:
         ydl_opts["merge_output_format"] = "mp4"
 
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+    def _attempt(opts: dict) -> str:
+        with yt_dlp.YoutubeDL(opts) as ydl:
             info = ydl.extract_info(url, download=True)
-            title = info.get("title") or "video"
+            return info.get("title") or "video"
+
+    try:
+        # Public posts download fine anonymously, and a stale session cookie
+        # makes IG answer with an empty body ("Failed to parse JSON") for
+        # EVERY post. So go anonymous first and only fall back to the cookies
+        # file (COOKIES_FILE) when that fails — e.g. age-gated / login-only.
+        try:
+            title = _attempt(ydl_opts)
+        except Exception as anon_err:  # noqa: BLE001
+            cookies_file = os.getenv("COOKIES_FILE")
+            low = str(anon_err).lower()
+            if not (cookies_file and Path(cookies_file).exists()) or "time limit" in low or "filesize" in low:
+                raise
+            for leftover in job_dir.glob("*"):
+                if leftover.is_file():
+                    leftover.unlink(missing_ok=True)
+            # yt-dlp writes the cookie jar BACK to cookiefile after the session.
+            # The mounted secret (/etc/secrets/…) is read-only, so copy it to a
+            # writable per-job path and point yt-dlp there.
+            writable = job_dir / "cookies.txt"
+            shutil.copyfile(cookies_file, writable)
+            title = _attempt({**ydl_opts, "cookiefile": str(writable)})
         # yt-dlp renamed/merged; grab whatever landed in the job dir.
         files = sorted(job_dir.glob("*"), key=lambda p: p.stat().st_mtime, reverse=True)
         real = next(
